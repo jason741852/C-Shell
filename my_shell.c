@@ -5,13 +5,14 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define tokenDelim " \n "
+#define tokenDelim " \n\t"
 #define bufferSize 100
 
 char* readCmd();
 char* readCmd();
 char** tokenizer(char*);
 bool exitCheck(char**);
+bool cdCheck(char**);
 //bool execute(char**);
 
 
@@ -19,6 +20,7 @@ int main(void){
   bool terminate = false;
   while(!terminate){
     char* cmd;
+    char* cwd;
     char** cmdToken;
     int i = 0;
     pid_t pid;
@@ -35,26 +37,45 @@ int main(void){
       terminate = true;
       exit(0);
     }
-
+    else if(cdCheck(cmdToken)==true){
+      if(cmdToken[1]==NULL){
+        perror("error: not enough arguement\f");
+      }
+      else{
+        cwd = getcwd(NULL, 0);
+        //printf("%s \n", cwd);
+        strncat(cwd, "/", bufferSize);
+        strncat(cwd, cmdToken[1], bufferSize);
+        printf("%s \n", cwd);
+        if(chdir(cwd) == -1){
+          perror("error: directory not found\n");
+        }
+      }
+    }
+    else{
     /////////////////////////////////////////////
     /*forking if command not calling build-in's*/
     /////////////////////////////////////////////
-
     pid = fork();
+    printf("pid = %d\n", pid);
     if(pid<0){
       perror("error");
       //exit(1);
     }
     else if(pid==0){
-      if(execvp(cmdToken[0],cmdToken)==-1){
-        perror("command not found");
+      printf("------in child------\n");
+      if(execvp(cmdToken[0],cmdToken)<0){
+        perror("error: execution failed");
       }
     }
     else{
+      printf("------parent waiting------\n");
       wait();
+      printf("------parent finished waiting------\n");
       printf("parent exiting\n");
       //exit(0);
     }
+  }
 }
   return 0;
 }
@@ -84,28 +105,22 @@ char** tokenizer(char* line){
   return tokens;
 }
 
-// Check for build-in system calls
-int buildinCheck(char** cmdTok){
-  if(strcmp("cd", cmdTok[0])==0){
-    return 1;
-  }
-  else if(strcmp("exit", cmdTok[0])==0){
-    //printf("true \n");
-    return 2;
-  }
-}
 
-
-
-
-
-
-
-
-
-/// Check for "exit" command, if so exit
+/// Check for "exit" command, if so return true for main to exit
  bool exitCheck(char** cmdTok){
    if(strcmp("exit", cmdTok[0])==0){
+     //printf("true \n");
+     return true;
+   }
+   else{
+     //printf("false \n");
+     return false;
+   }
+ }
+
+/// Check for "exit" command, if so return true for main to change directory
+ bool cdCheck(char** cmdTok){
+   if(strcmp("cd", cmdTok[0])==0){
      //printf("true \n");
      return true;
    }
