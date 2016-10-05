@@ -13,7 +13,8 @@ char* readCmd();
 char** tokenizer(char*);
 bool exitCheck(char**);
 bool cdCheck(char**);
-//bool execute(char**);
+int cmdCount(char**);
+
 
 
 int main(void){
@@ -23,11 +24,13 @@ int main(void){
     char* cwd;
     char** cmdToken;
     int i = 0;
+    int cmd_counter = 0; // count the number of pipes needed
     pid_t pid;
 
 
     cmd = readCmd();
     cmdToken = tokenizer(cmd);
+    cmd_counter = cmdCount(cmdToken);
     //  for(i = 0; i<3; i++){
     //    printf("%s | ", cmdToken[i]);
     //  }
@@ -60,7 +63,7 @@ int main(void){
     printf("pid = %d\n", pid);
     if(pid<0){
       perror("error");
-      //exit(1);
+      exit(1);
     }
     else if(pid==0){
       printf("------in child------\n");
@@ -128,4 +131,17 @@ char** tokenizer(char* line){
      //printf("false \n");
      return false;
    }
+ }
+
+ int cmdCount(char** cmdTok){
+   int n = sizeof(cmdTok)/sizeof(cmdTok[0]);
+   int cmd_counter=1;
+   int i = 0;//loop counter
+   for(i; i<n; i++){
+     if(strcmp("|", cmdTok[i])==0){
+       cmd_counter++;
+     }
+   }
+   printf("Number of commands: %d\n", cmd_counter);
+   return cmd_counter;
  }
