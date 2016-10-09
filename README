@@ -1,0 +1,22 @@
+CMPT300 A1 part 2
+my_shell.c written by Ka Shun (Jason) Chan, ksc19@sfu.ca
+
+instruction to compile my_shell.c:
+1) cd into the location of proc_parse.c and Makefile
+2) type "make" in the command console
+3) done; the executable is "shell.exe"
+
+notes:
+- job control is not implemented
+- piping is not fully functional: there are problems with linking fd[0] and fd[1] inside the loop
+
+work flow:
+- ask user for command input
+- parse input string into tokens
+- check for internal commands "exit" and "cd"
+- if true: methods are implemented and then loop back to the start
+- if not: - parse tokens into a 2-D array seperated by pipe symbol "|"
+          - call fork()
+          - start child process which executes the user command
+          - iterate until all commands have been executed
+          - exit loop and go back to start
