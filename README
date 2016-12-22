@@ -6,10 +6,6 @@ instruction to compile my_shell.c:
 2) type "make" in the command console
 3) done; the executable is "shell.exe"
 
-notes:
-- job control is not implemented
-- piping is not fully functional: there are problems with linking fd[0] and fd[1] inside the loop
-
 work flow:
 - ask user for command input
 - parse input string into tokens
